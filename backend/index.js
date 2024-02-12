@@ -1,4 +1,5 @@
 const express = require("express");
+const cors = require('cors');
 const dotenv = require("dotenv");
 const jwt = require("jsonwebtoken");
 const { MongoClient, ServerApiVersion } = require("mongodb");
@@ -6,8 +7,10 @@ const utils = require("./utils");
 
 const app = express();
 const bodyParser = require("body-parser");
+const verifyAuth = require("./middleware/auth");
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
+app.use(cors());
 
 dotenv.config();
 
@@ -31,7 +34,7 @@ const client = new MongoClient(MONGO_DB_URI, {
 const recipe_app = client.db("recipe_app");
 const useraccounts = recipe_app.collection("user_accounts");
 
-app.get("/", (req, res) => {
+app.get("/", verifyAuth, (req, res) => {
   res.json({ success: true });
 });
 
@@ -109,7 +112,7 @@ app.post("/signup", async (req, res) => {
 app.post("/auth/generate", (req, res) => {
   const data = {
     time: new Date(),
-    userId: 1,
+    email: 'random@random.random'
   };
   const token = jwt.sign(data, jwtSecret);
 
